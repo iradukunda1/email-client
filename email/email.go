@@ -30,7 +30,7 @@ func Send(s *Config, email *Email) error {
 
 	auth := smtp.PlainAuth("", s.Sender, s.Secret, s.Host)
 
-	to := fmt.Sprintf("To:%s\r\n", email.Recipients[:])
+	to := fmt.Sprintf("To:%s\r\n", email.Recipients[0:])
 
 	subject := fmt.Sprintf("Subject:%s\r\n", email.Subject)
 
