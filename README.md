@@ -10,7 +10,7 @@ The email-client Implement send email based on gmail protocol
 ### Usage
 Run the following command to install the package
 ```
-go get github.com/iradukunda1/email-client
+go get github.com/iradukunda1/email-client@latest
 
 ```
 ```bash
@@ -28,23 +28,15 @@ configs := email.Config{
     Secret: config.Secret,
 }
 
-type email struct{
-    Subject:    "testing",
-    Body:       "Hello this is testing message"
-    Sender:     config.Sender,
+services := email.New(configs)
+
+msg := email.Email{
+    Subject:    "Testing",
+    Body:       fmt.Sprintf("This is a test email \n Again test email"),
     Recipients: []string{"receiver@gmail.com"},
 }
 
-message := email.Email{
-    Subject:    email.Subject,
-    Body:       email.Body,
-    Sender:     email.Sender,
-    Recipients: email.Recipients,
-}
-
-err = email.Send(&configs, &message)
-
-if err != nil {
-    return err
+if err := services.Send(msg); err !=nil{
+    fmt.Printf("error: %v", err)
 }
 ```
