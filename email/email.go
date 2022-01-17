@@ -3,6 +3,7 @@ package email
 import (
 	"fmt"
 	"net/smtp"
+	"strconv"
 )
 
 type (
@@ -13,10 +14,11 @@ type (
 		Sender     string
 		Recipients []string // The recipients of this particular Email
 	}
+
 	Config struct {
 		Sender string
 		Host   string
-		Port   string
+		Port   int64
 		Secret string
 	}
 	// SendService is the principal interface.
@@ -24,11 +26,29 @@ type (
 	SendService interface {
 		Send(s *Config, email *Email) error
 	}
+
+	//Client struct hold auth client
+	Client struct {
+		Auth smtp.Auth
+		Host string
+		Port int64
+	}
 )
 
-func Send(s *Config, email *Email) error {
+// Initailize email-client by provinding sender config
+func New(c *Config) *Client {
+	return &Client{
+		Auth: smtp.PlainAuth("", c.Sender, c.Secret, c.Host),
+		Host: c.Host,
+		Port: c.Port,
+	}
 
-	auth := smtp.PlainAuth("", s.Sender, s.Secret, s.Host)
+}
+
+// Send that handler send email with it's subject
+func (s *Client) Send(email *Email) error {
+
+	// auth := smtp.PlainAuth("", s.Sender, s.Secret, s.Host)
 
 	to := fmt.Sprintf("To:%s\r\n", email.Recipients[0:])
 
@@ -37,7 +57,7 @@ func Send(s *Config, email *Email) error {
 	message := []byte(to + subject + "\r\n" + email.Body)
 
 	// Send actual email
-	err := smtp.SendMail(s.Host+":"+s.Port, auth, email.Sender, email.Recipients, message)
+	err := smtp.SendMail(s.Host+":"+strconv.Itoa(int(s.Port)), s.Auth, email.Sender, email.Recipients, message)
 
 	if err != nil {
 		return err
